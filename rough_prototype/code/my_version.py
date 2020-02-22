@@ -25,7 +25,7 @@ cap = cv2.VideoCapture("/Users/ethanbolton/Desktop/VideoExample/videos/short_exa
 counter = 0
 
 while cap.isOpened():
-    ret, frame = cap.read();
+    ret, frame = cap.read()
     orig = frame.copy()
 
     if counter % 1 == 0:
