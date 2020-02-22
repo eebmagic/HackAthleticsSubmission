@@ -15,14 +15,27 @@ from imutils.object_detection import non_max_suppression  # for ignoring some bo
 import pytesseract  # for OCR
 
 
+FRAME_RATE = 59.940024 # frame rate of the video
+
+def get_frame(time):
+    mini, sec = list(map(int, time.split(':')))
+    return FRAME_RATE * (mini * 60 + sec)
+
 # Define the detector to be used in the frames
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 # Load the video 
-cap = cv2.VideoCapture("/Users/ethanbolton/Desktop/VideoExample/videos/short_example.mp4")
+cap = cv2.VideoCapture('rough_prototype/video/1904-GATC-CONT-vs-PATE.mp4')
+
+cap.set(cv2.CAP_PROP_POS_FRAMES, get_frame('2:10')) # start the video at a certain frame
 
 counter = 0
+
+helmet_img = cv2.imread('rough_prototype/gt_helmet.png') # load the helmet image
+helmet_hsv = cv2.cvtColor(helmet_img, cv2.COLOR_BGR2HSV) # convert the helmet into its colour model
+mu, sig = cv2.meanStdDev(helmet_hsv)
+devs = 2
 
 while cap.isOpened():
     ret, frame = cap.read();
@@ -32,9 +45,29 @@ while cap.isOpened():
         # Run detection on frame
         (rects, weights) = hog.detectMultiScale(frame, winStride=(4, 4), padding=(8, 8), scale=1.05)
 
+        FACTOR = 50
+        
+        newData = []
+        for point in frame:
+            newTup = [np.round(x - (x % FACTOR), -1) for x in point[:3]]
+
+            newData.append(tuple(newTup))
+
+        # end = FACTOR * int(len(frame) / FACTOR)
+        # chunked_frame = np.mean(frame[:end].reshape(-1, FACTOR), 1)
+
+        cv2.imshow('booga', newData)
+
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # break the frame up into its colour model
+
+        gold_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig) # break up the hsv to only get the defined colours
+
+        cv2.imshow('ooga', gold_mask)
+
         # Draw rectangles
         for (x, y, w, h) in rects:
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        
         rects = np.array([[x, y, x + w, y + h] for (x, y, w, h) in rects])
         pick = non_max_suppression(rects, probs=None, overlapThresh=0.65)
 
@@ -64,7 +97,7 @@ while cap.isOpened():
 
     # Show the finished frame
     # cv2.imshow('original', orig)
-    cv2.imshow("with rects", frame)
+    cv2.imshow('with rects', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
