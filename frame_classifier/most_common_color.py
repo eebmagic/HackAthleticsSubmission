@@ -42,28 +42,65 @@ def avg_pixel(inputList):
     return (R, G, B)
 
 
+def round_colorlist(inputList, factor=20):
+    newData = []
+    for point in inputList:
+        newTup = [round(x - (x % factor), -1) for x in point[:3]]
+        newData.append(tuple(newTup))
 
+    return newData
+
+
+# gets most common rather than average
+def common_colors(inputList):
+    if type(inputList) != list:
+        inputList = get_crosses(inputList)
+
+    rounded = round_colorlist(inputList)
+    counts = {}
+    for color in rounded:
+        if color not in counts:
+            counts[color] = 1
+        else:
+            counts[color] += 1
+    counts = sorted(counts.items(), key=lambda x: int(x[1]), reverse=True)
+
+    short = counts[:3]
+    shortValues = [x[0] for x in short]
+    return short
 
 
 if __name__ == '__main__':
-    SOURCE_PATH = "/Users/ethanbolton/Desktop/hackgt/scene_detection/outputs/22360.png"
+    import os
+    prefix = "../scene_detection/outputs/"
+    images = os.listdir(prefix)
+    images.sort()
+    paths = [prefix + x for x in images]
 
-    image = cv2.imread(SOURCE_PATH)
-    
+    for IMAGE_PATH in paths[:3]:
+        image = cv2.imread(IMAGE_PATH)
+        print(IMAGE_PATH.split('/')[-1], common_colors(image))
 
 
-    print(image[0][0])
-    print(image.shape)
 
-    colors = get_crosses(image)
-    print(colors)
+    # used for testing but left as an example
 
-    flatList = []
-    for color in colors:
-        as_list = color.tolist()
-        flatList.append(as_list)
+    # SOURCE_PATH = "/Users/ethanbolton/Desktop/hackgt/scene_detection/outputs/22360.png"
+    # image = cv2.imread(SOURCE_PATH)
 
-    print(avg_pixel(flatList))
 
-    print(type(image))
-    print(type(flatList))
+    # print(image[0][0])
+    # print(image.shape)
+
+    # colors = get_crosses(image)
+    # print(colors)
+
+    # flatList = []
+    # for color in colors:
+    #     as_list = color.tolist()
+    #     flatList.append(as_list)
+
+    # print(avg_pixel(flatList))
+
+    # print(type(image))
+    # print(type(flatList))
