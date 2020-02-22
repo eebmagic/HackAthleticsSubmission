@@ -10,10 +10,9 @@
 ############################################################
 
 import cv2
-import numpy as np
 from imutils.object_detection import non_max_suppression  # for ignoring some boxes???
-import pytesseract  # for OCR
-
+import numpy as np
+from PIL import Image
 
 FRAME_RATE = 59.940024 # frame rate of the video
 
@@ -44,19 +43,19 @@ while cap.isOpened():
     if counter % 1 == 0:
         # Run detection on frame
         (rects, weights) = hog.detectMultiScale(frame, winStride=(4, 4), padding=(8, 8), scale=1.05)
+        (h, w) = frame.shape[:2]
 
-        FACTOR = 50
-        
         newData = []
-        for point in frame:
-            newTup = [np.round(x - (x % FACTOR), -1) for x in point[:3]]
+        
+        new_frame = np.reshape(frame, (w * h, 3))
 
+        factor = 50
+
+        for point in new_frame:
+            newTup = [round(x - (x % factor), -1) for x in point]
             newData.append(tuple(newTup))
 
-        # end = FACTOR * int(len(frame) / FACTOR)
-        # chunked_frame = np.mean(frame[:end].reshape(-1, FACTOR), 1)
-
-        cv2.imshow('booga', newData)
+        cv2.imshow('chunked', np.reshape(newData, (w, h)))
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # break the frame up into its colour model
 
