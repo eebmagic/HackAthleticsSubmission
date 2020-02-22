@@ -38,7 +38,7 @@ mu, sig = cv2.meanStdDev(helmet_hsv)
 devs = 2
 
 while cap.isOpened():
-    ret, frame = cap.read();
+    ret, frame = cap.read()
     orig = frame.copy()
 
     if counter % 1 == 0:
