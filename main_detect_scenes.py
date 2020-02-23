@@ -140,5 +140,5 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    VIDEO_PATH = "media/super_short.mp4"
+    VIDEO_PATH = "media/videos/super_short.mp4"
     get_frame_stamps(VIDEO_PATH)

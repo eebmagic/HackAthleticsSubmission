@@ -5,7 +5,7 @@ from people_classifier.classify_team import classify_person
 from cvlib.object_detection import draw_bbox
 from util import get_frame
 
-video = cv2.VideoCapture('media/1904-GATC-CONT-vs-PATE.mp4')
+video = cv2.VideoCapture('media/videos/1904-GATC-CONT-vs-PATE.mp4')
 
 video.set(cv2.CAP_PROP_POS_FRAMES, get_frame('2:10'))
 
