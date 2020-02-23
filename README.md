@@ -16,5 +16,5 @@
 
 
 - scoreboard shots
-    - check line position
-    - check down
+    - OCR: check line position
+    - OCR: check down
