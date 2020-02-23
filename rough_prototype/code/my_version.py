@@ -25,9 +25,13 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 # Load the video 
+<<<<<<< HEAD
 cap = cv2.VideoCapture('rough_prototype/video/1904-GATC-CONT-vs-PATE.mp4')
 
 cap.set(cv2.CAP_PROP_POS_FRAMES, get_frame('2:10')) # start the video at a certain frame
+=======
+cap = cv2.VideoCapture("../video/GT_video/short.mp4")
+>>>>>>> cbd85a751ee12b28d67ea02c35b5ebdc682291b8
 
 counter = 0
 
