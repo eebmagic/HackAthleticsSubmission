@@ -31,11 +31,6 @@ cap.set(cv2.CAP_PROP_POS_FRAMES, get_frame('2:10')) # start the video at a certa
 
 counter = 0
 
-helmet_img = cv2.imread('rough_prototype/gt_helmet.png') # load the helmet image
-helmet_hsv = cv2.cvtColor(helmet_img, cv2.COLOR_BGR2HSV) # convert the helmet into its colour model
-mu, sig = cv2.meanStdDev(helmet_hsv)
-devs = 2
-
 while cap.isOpened():
     ret, frame = cap.read()
     orig = frame.copy()
@@ -44,24 +39,6 @@ while cap.isOpened():
         # Run detection on frame
         (rects, weights) = hog.detectMultiScale(frame, winStride=(4, 4), padding=(8, 8), scale=1.05)
         (h, w) = frame.shape[:2]
-
-        newData = []
-        
-        new_frame = np.reshape(frame, (w * h, 3))
-
-        factor = 50
-
-        for point in new_frame:
-            newTup = [round(x - (x % factor), -1) for x in point]
-            newData.append(tuple(newTup))
-
-        cv2.imshow('chunked', np.reshape(newData, (w, h)))
-
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # break the frame up into its colour model
-
-        gold_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig) # break up the hsv to only get the defined colours
-
-        cv2.imshow('ooga', gold_mask)
 
         # Draw rectangles
         for (x, y, w, h) in rects:
