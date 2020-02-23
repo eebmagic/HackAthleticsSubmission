@@ -1,43 +1,5 @@
-'''
-Classifier to determine if an image is of scoreboard or of field
-'''
-
 import cv2
 import numpy as np
-import os
-
-def is_board(image, printouts=False):
-    # method using avg pixel color
-    avg_color = avg_pixel(image)
-    G_avg = avg_color[1]
-
-    # method using three most common colors
-    colors = common_colors(image)
-    G_sum = sum([x[0][1] for x in colors])
-    max_count = colors[0][1]
-    R_max = colors[0][0][0]
-    G_max = colors[0][0][1]
-    B_max = colors[0][0][2]
-    RB_max_avg = int((R_max + B_max) / 2)
-
-    if printouts:
-        # print("")
-        print(avg_color)
-        print(f"G_avg: {G_avg}")
-        print(colors)
-        print(f"max_count: {max_count}")
-        print(f"G_sum: {G_sum}")
-        print(f"G_max: {G_max}")
-        print(f"RB_max_avg: {RB_max_avg}")
-
-    ## Compromise between two methods
-    # if G_avg < 150 and G_sum < 150:
-    # if G_avg < 150 and G_sum < 150 and colors[0][1] < 265:
-    if G_avg < 150 and max_count < 300 and (G_max - RB_max_avg) < 15:
-        return True
-    else:
-        return False
-
 
 def get_crosses(inputImage):
     output = []
@@ -108,22 +70,37 @@ def common_colors(inputList):
     return short
 
 
-# if __name__ == '__main__':
-#     import os
-#     prefix = "../old_scene_detection/outputs/"
-#     images = os.listdir(prefix)
-#     images.sort()
-#     paths = [prefix + x for x in images]
+if __name__ == '__main__':
+    import os
+    prefix = "../scene_detection/outputs/"
+    images = os.listdir(prefix)
+    images.sort()
+    paths = [prefix + x for x in images]
 
-#     correct = ["43760.png", "104280.png", "131240.png"]
+    for IMAGE_PATH in paths[:3]:
+        image = cv2.imread(IMAGE_PATH)
+        print(IMAGE_PATH.split('/')[-1], common_colors(image))
 
-#     for IMAGE_PATH in paths:
-#         image = cv2.imread(IMAGE_PATH)
-        
-#         prediction = is_board(image)
-#         print(IMAGE_PATH.split('/')[-1], prediction)
-#         if IMAGE_PATH.split('/')[-1] in correct:
-#             print(f"BOARD - {prediction == True}")
-#         else:
-#             print(f"FIELD - {prediction == False}")
-#         print("")
+
+
+    # used for testing but left as an example
+
+    # SOURCE_PATH = "/Users/ethanbolton/Desktop/hackgt/scene_detection/outputs/22360.png"
+    # image = cv2.imread(SOURCE_PATH)
+
+
+    # print(image[0][0])
+    # print(image.shape)
+
+    # colors = get_crosses(image)
+    # print(colors)
+
+    # flatList = []
+    # for color in colors:
+    #     as_list = color.tolist()
+    #     flatList.append(as_list)
+
+    # print(avg_pixel(flatList))
+
+    # print(type(image))
+    # print(type(flatList))

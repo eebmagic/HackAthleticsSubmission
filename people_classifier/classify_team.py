@@ -15,8 +15,3 @@ def classify_person(image, observations=5):
     _, counts = np.unique(labels, return_counts=True)
 
     dominant = palette[np.argmax(counts)]
-
-    # mask1 = cv2.inRange(player_hsv, lower_blue, upper_blue)
-	# res1 = cv2.bitwise_and(player_img, player_img, mask=mask1)
-	# res1 = cv2.cvtColor(res1,cv2.COLOR_HSV2BGR)
-	# res1 = cv2.cvtColor(res1,cv2.COLOR_BGR2GRAY)
