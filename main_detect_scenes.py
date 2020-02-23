@@ -148,9 +148,5 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    VIDEO_PATH = "media/short.mp4"
-=======
     VIDEO_PATH = "media/super_short.mp4"
->>>>>>> 9c0cfb54523b9983711203f38fdafc1497b7caf6
     get_frame_stamps(VIDEO_PATH)
