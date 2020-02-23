@@ -7,7 +7,7 @@ import os
 # mu, sig = cv2.meanStdDev(line_hsv) # find the mean colour of the base line image
 # devs = 15 # tolerance
 
-def get_angle(image, crop_factor=0.1):
+def get_lines(image, crop_factor=0.1):
     (h, w) = image.shape[:2]
     image = image[int(h * crop_factor):int(h * (1 - crop_factor)), int(w * crop_factor):int(w * (1 - crop_factor))] # crop the image to remove the sidelines
     
@@ -23,6 +23,11 @@ def get_angle(image, crop_factor=0.1):
         return
 
     lines = np.reshape(lines, (len(lines), 2))
+
+    return lines
+
+def get_angle(image, crop_factor=0.1):
+    lines = get_lines(image, crop_factor)
 
     average_angle = sum([x[1] for x in lines]) / len(lines)
 
@@ -63,7 +68,7 @@ def is_wide(image, crop_factor=0.1):
 # 106720
 
 if __name__ == '__main__':
-    prefix = 'scene_detection/outputs/'
+    prefix = 'old_scene_detection/outputs/'
     images = os.listdir(prefix)
     images.sort()
 
