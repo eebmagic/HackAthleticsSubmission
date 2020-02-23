@@ -1,7 +1,9 @@
 import cv2
+import cvlib as cv
 from imutils.object_detection import non_max_suppression
 import numpy as np
 from people_classifier.classify_team import classify_person
+from cvlib.object_detection import draw_bbox
 from util import get_frame, format_frame
 
 hog = cv2.HOGDescriptor()
@@ -23,6 +25,11 @@ dark_field_hsv = cv2.cvtColor(dark_field_sample, cv2.COLOR_BGR2HSV)
 dmu, dsig = cv2.meanStdDev(dark_field_hsv)
 ddevs = 14
 
+line_sample = cv2.imread('media/line_sample.png')
+line_hsv = cv2.cvtColor(line_sample, cv2.COLOR_BGR2HSV)
+lmu, lsig = cv2.meanStdDev(line_hsv)
+ldevs = 10
+
 if __name__ == '__main__':
     while video.isOpened():
         orig = frame.copy()
@@ -31,21 +38,18 @@ if __name__ == '__main__':
 
         field_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig)
         dark_field_mask = cv2.inRange(hsv, dmu - ddevs * dsig, dmu + ddevs * dsig)
-        masked = cv2.bitwise_and(frame, frame, mask=cv2.bitwise_not(field_mask | dark_field_mask))
+        line_mask = cv2.inRange(hsv, lmu - ldevs * lsig, lmu + ldevs * lsig)
+        masked = cv2.bitwise_and(frame, frame, mask=cv2.bitwise_not(field_mask | dark_field_mask | line_mask))
 
         # convert to hsv and to grayscale
         frame_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
 
-        # detect people in the image
-        # returns the bounding boxes for the detected objects
-        boxes, weights = hog.detectMultiScale(format_frame(frame_gray, 0.5), winStride=(8,8))
+        bboxs, labels, conf = cv.detect_common_objects(masked)
+        frame = draw_bbox(frame, bboxs, labels, conf)
 
-        boxes = np.array([[x, y, x + w, y + h] for (x, y, w, h) in boxes])
-
-        print(boxes)
-
-        for (xA, yA, xB, yB) in boxes:
-            cv2.rectangle(frame, (xA, yA), (xB, yB), (0, 255, 0), 2)
+        # for label in labels:
+        #     if label == 'person':
+        #         cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
 
         cv2.imshow('output', frame)
         cv2.imshow('masked', masked)
