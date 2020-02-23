@@ -3,11 +3,7 @@ import cvlib as cv
 import numpy as np
 from people_classifier.classify_team import classify_person
 from cvlib.object_detection import draw_bbox
-<<<<<<< HEAD
 from util import get_frame
-=======
-from util import get_frame, format_frame
->>>>>>> 9c0cfb54523b9983711203f38fdafc1497b7caf6
 
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
