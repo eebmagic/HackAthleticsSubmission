@@ -1,12 +1,7 @@
 import cv2
 import numpy as np
-from people_classifier import classify_person
-
-FRAME_RATE = 59.940024 # frame rate of the video
-
-def get_frame(time):
-    mini, sec = list(map(int, time.split(':')))
-    return FRAME_RATE * (mini * 60 + sec)
+from people_classifier.classify_team import classify_person
+from util import get_frame
 
 video = cv2.VideoCapture('media/1904-GATC-CONT-vs-PATE.mp4')
 
@@ -49,10 +44,12 @@ if __name__ == '__main__':
                     dx = idx + 1
                     player_img = frame[y:(y + h), x:(x + w)]
                     # here we would call classify team
-                    classify_person(player_img)
+                    # classify_person(player_img)
+
+                    cv2.rectangle(frame, (x, y),(x + w, y + h), (255,0,0), 3)
 
 
-        cv2.imshow('output', frame)
+        cv2.imshow('output', thresh)
         count += 1
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
