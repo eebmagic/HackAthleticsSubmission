@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 __pycache__/
 *.py[cod]
 *$py.class
+=======
+>>>>>>> 9c0cfb54523b9983711203f38fdafc1497b7caf6
 media
 .DS_Store
 .mp4
