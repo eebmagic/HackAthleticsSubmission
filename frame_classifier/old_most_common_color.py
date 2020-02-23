@@ -1,3 +1,9 @@
+'''
+OLD: all funcs moved over to the classify_is_board.py file
+
+Functions that are used in classify_is_board
+'''
+
 import cv2
 import numpy as np
 

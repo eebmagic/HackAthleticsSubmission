@@ -20,7 +20,7 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 # Load the video 
-cap = cv2.VideoCapture("/Users/ethanbolton/Desktop/VideoExample/videos/short_example.mp4")
+cap = cv2.VideoCapture("../video/GT_video/short.mp4")
 
 counter = 0
 
