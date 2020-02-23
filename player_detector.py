@@ -39,18 +39,19 @@ if __name__ == '__main__':
             x, y, w, h = cv2.boundingRect(c)
 
             # time to find the players
-            if h >= 1.5 * w:
-                if w > 15 and h >= 15:
+            if h >= 1.2 * w:
+                if w > 50 and h >= 50:
                     dx = idx + 1
                     player_img = frame[y:(y + h), x:(x + w)]
                     # here we would call classify team
                     # classify_person(player_img)
 
-                    cv2.rectangle(frame, (x, y),(x + w, y + h), (255,0,0), 3)
+                    cv2.rectangle(frame, (x, y),(x + w, y + h), (255, 0, 0), 3)
 
 
-        cv2.imshow('output', thresh)
+        cv2.imshow('output', frame)
         count += 1
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
