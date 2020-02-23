@@ -1,6 +1,12 @@
 import cv2
 import numpy as np
-from util import get_frame
+from people_classifier import classify_person
+
+FRAME_RATE = 59.940024 # frame rate of the video
+
+def get_frame(time):
+    mini, sec = list(map(int, time.split(':')))
+    return FRAME_RATE * (mini * 60 + sec)
 
 video = cv2.VideoCapture('media/1904-GATC-CONT-vs-PATE.mp4')
 
@@ -17,7 +23,7 @@ mu, sig = cv2.meanStdDev(field_hsv) # find the mean colour of the base field ima
 devs = 15 # tolerance
 
 if __name__ == '__main__':
-    while success:
+    while video.isOpened():
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # convert frame into hsv
 
         field_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig)
@@ -27,10 +33,31 @@ if __name__ == '__main__':
         res_bgr = cv2.cvtColor(masked, cv2.COLOR_HSV2BGR)
         res_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
 
-        # some magic to get a better output image
+        # some magic to get a better output frame
         kernel = np.ones((13, 13), np.uint8)
         thresh = cv2.threshold(res_gray, 127, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
         thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) # find contours in the threshold frame
+
+        for c in contours:
+            x, y, w, h = cv2.boundingRect(c)
+
+            # time to find the players
+            if h >= 1.5 * w:
+                if w > 15 and h >= 15:
+                    dx = idx + 1
+                    player_img = frame[y:(y + h), x:(x + w)]
+                    # here we would call classify team
+                    classify_person(player_img)
+
+
         cv2.imshow('output', frame)
-        cv2.waitKey(0)
+        count += 1
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+        success, frame = video.read()
+
+    video.release()
+    cv2.destroyAllWindows()
