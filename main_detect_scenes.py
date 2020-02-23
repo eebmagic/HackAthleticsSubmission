@@ -78,7 +78,6 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
     while cap.isOpened():
         ret, current_full_frame = cap.read()
         if ret:
-
             if frame_counter % 1000 == 0:
                 print(running_list)
 
@@ -149,6 +148,5 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
 
 
 if __name__ == "__main__":
-    VIDEO_PATH = "media/short.mp4"
-    # VIDEO_PATH = "/Users/ethanbolton/Desktop/super_short.mp4"
+    VIDEO_PATH = "media/super_short.mp4"
     get_frame_stamps(VIDEO_PATH)
