@@ -87,10 +87,7 @@ def is_wide(image, crop_factor=0.2, printouts=False):
     if printouts:
         print(f"average_angle: {average_angle}")
         # print(f"average_degree: {average_degree}")
-
-    
-
-
+        
     if average_angle is None:
         return "orientation_detector ERROR: no lines found"
 
@@ -98,8 +95,6 @@ def is_wide(image, crop_factor=0.2, printouts=False):
         return "long"
     else:
         return "wide"
-
-    
 
 # expected output
 # These should be vertical and the rest should be horizontal
