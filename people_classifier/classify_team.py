@@ -1,22 +1,31 @@
 import cv2
 import numpy as np
-from skimage import io
+import os
 
-def classify_person(image, observations=5):
-    average = image.mean(axis=0).mean(axis=0)
+temple_sample = cv2.imread('media/temple_sample.png') # load the base jersey image
+temple_hsv = cv2.cvtColor(temple_sample, cv2.COLOR_BGR2HSV) # convert the jersey image into hsv
+mu, sig = cv2.meanStdDev(temple_hsv) # find the mean colour of the base jersey image
+devs = 1 # tolerance
 
-    pixels = np.float32(image.reshape(-1, 3))
+def classify_person(image, red_threshold=250):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    red_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig)
+    print(red_mask)
+    masked = cv2.bitwise_and(image, image, mask=red_mask)
 
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, 0.1)
-    flags = cv2.KMEANS_RANDOM_CENTERS
+    if cv2.countNonZero(red_mask) > red_threshold:
+        return False
+    else:
+        return True
 
-    # this takes n samples over k clusters to determine the averagest colours
-    _, labels, palette = cv2.kmeans(pixels, observations, criteria, 10, flags)
-    _, counts = np.unique(labels, return_counts=True)
+    # cv2.imshow('image', image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
-    dominant = palette[np.argmax(counts)]
+if __name__ == '__main__':
+    prefix = 'media/players/'
+    images = os.listdir(prefix)
+    images.sort()
 
-    # mask1 = cv2.inRange(player_hsv, lower_blue, upper_blue)
-	# res1 = cv2.bitwise_and(player_img, player_img, mask=mask1)
-	# res1 = cv2.cvtColor(res1,cv2.COLOR_HSV2BGR)
-	# res1 = cv2.cvtColor(res1,cv2.COLOR_BGR2GRAY)
+    for image in images:
+        print(f'{image} : {classify_person(cv2.imread(prefix + image))}')

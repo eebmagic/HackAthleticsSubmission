@@ -53,6 +53,10 @@ if __name__ == '__main__':
         for bbox, label in combined:
             if label == 'person':
                 # cv2.imwrite(f'media/players/{bbox[0]}.png', frame[bbox[1]:bbox[3], bbox[0]:bbox[2]])
+                player = frame[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+                if classify_person(player):
+                    print('TECH!!')
+                    
                 cv2.rectangle(frame_out, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
 
         cv2.imshow('output', frame_out)
