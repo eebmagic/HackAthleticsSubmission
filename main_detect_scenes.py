@@ -1,24 +1,25 @@
 import cv2
 import numpy as np
+import time
 
-import frame_classifier.classify_is_board
+from util import get_time
+
+from frame_classifier import classify_board
+from frame_classifier import orientation_detector
 
 
 '''
 correct answers:
 
-3,200  - 3 secs
-22,300 - 19 secs
-41,480 - 35 secs
-44,800 - 38 secs
+0    - 3 secs  - board
+160  - 19 secs - wide
+1115 - 35 secs - long
+2074 - 38 secs - board 
 
 '''
 
 # Used for getting specifc frame configuration to optimize time spent for finding scenes
 def format_frame(inputFrame, percent=20):
-    # reduce color to grayscale
-    # inputFrame = cv2.cvtColor(inputFrame, cv2.COLOR_BGR2GRAY)
-
     # reduce resolution
     width = int(inputFrame.shape[1] * percent/ 100)
     height = int(inputFrame.shape[0] * percent/ 100)
@@ -27,17 +28,31 @@ def format_frame(inputFrame, percent=20):
     return cv2.resize(inputFrame, dim, interpolation=cv2.INTER_AREA)
 
 
-def get_change_number(frameA, frameB):
-    # pulled from my previous motion detection project
-    # probably not optimal for this case?
-    DIFF = cv2.absdiff(np.float32(frameA), np.float32(frameB))
-    MAX_DIFF = np.amax(DIFF)
-    # cv2.imshow("absdiff", DIFF)
+def mode_from_frame(inputFrame):
+    output = None
+    if classify_board.is_board(inputFrame, printouts=True) == True:
+        print("VAR UPDATED TO - BOARD")
+        output = "board"
+    else:
+        print("NOT BOARD")
+        is_wide = orientation_detector.is_wide(inputFrame, crop_factor=0.3, printouts=False)
+        if is_wide == "wide":
+            print("VAR UPDATED TO - WIDE")
+            output = "wide"
+        elif is_wide == "long":
+            print("VAR UPDATED TO - LONG")
+            output = "long"
+        else:
+            output = is_wide
 
-    return MAX_DIFF
+    # cv2.imshow(str(inputFrame), inputFrame)
+    # input()
+    return output
+
 
 def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
     cap = cv2.VideoCapture(VIDEO_PATH)
+    # cap.set(cv2.CAP_PROP_POS_FRAMES, 120)
 
     frame_counter = 0
 
@@ -47,83 +62,91 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
     last_significant_framedata = np.empty(last_frame.shape)
     running_list = []
 
-    save_counter = None
+    # mean data for detecting scene changes
+    # (value, count since last transition)
+    mean_data = [last_frame.mean(), 1]
+    MEAN_THRESH = 2
+
+    next_counter = None
 
     # modes: board, wide, long
     current_shot_mode = None
 
+    # how many frames to do before checking all things
+    frame_iterations = 1
+
     while cap.isOpened():
-        if frame_counter % 1000 == 0:
-            print(running_list)
+        ret, current_full_frame = cap.read()
+        if ret:
+            if frame_counter % 1000 == 0:
+                print(running_list)
 
-        #################################################
-        ### Check for updated scenes 
-        frame_iterations = 20
-        if frame_counter % frame_iterations == 0:
-            ret, current_frame = cap.read()
-            current_frame = format_frame(current_frame)
+            #################################################
+            ### Check for updated scenes 
+            if frame_counter % frame_iterations == 0:    
+                current_frame = format_frame(current_full_frame)
 
-            MAX_DIFF = get_change_number(last_frame, current_frame)
+                # display every few frames for ease
+                if frame_counter % 1 == 0:
+                    cv2.imshow(current_shot_mode, current_frame)
+                    pass
 
-            # Check that there is proper diff from last frame
-            print(frame_counter, MAX_DIFF)
-            if previous_change != None and abs(MAX_DIFF - previous_change) > 60:
+
+                # Check mean for motion
+                curr_mean = current_frame.mean()
+                print(current_shot_mode, get_time(frame_counter), frame_counter,  round(mean_data[0]), round(curr_mean))
+                if abs(curr_mean - mean_data[0]) > MEAN_THRESH:
+                    # update new scene
+                    print("CHANGE_DETECTED")
+                    running_list.append(frame_counter)
+                    next_counter = frame_counter + (10 * frame_iterations) # next frame to check for save and update state
+                    mean_data = [curr_mean, 1]
+                else:
+                    # update avg
+                    mean_data[0] = ((mean_data[0] * mean_data[1]) + curr_mean) / (mean_data[1] + 1)
+                    mean_data[1] += 1
+
                 
-                # Compare last changed frame
-                if not last_significant_framedata.any():
-                    AGAINST_LAST_SIG_FRAME = get_change_number(last_significant_framedata, current_frame)
+                # update current mode and/or save frames
+                if next_counter != None and abs(next_counter - frame_counter) < frame_iterations:
+                    # update shot mode after delay
+                    current_shot_mode = mode_from_frame(current_frame)
 
-                # Use value against last changed frame
-                if not last_significant_framedata.any() or AGAINST_LAST_SIG_FRAME > 80:
-                    print(f"CHANGE_DETECTED: frame {frame_counter}")
-                    
-                    if len(running_list) != 0 and frame_counter - running_list[-1] > 1500:
-                        running_list.append(frame_counter)
-                        last_significant_framedata = current_frame
-                        print("LAST SIGNIFICANT")
-                        print(last_significant_framedata.any())
-                        save_counter = frame_counter + (3 * frame_iterations) # set svae to be in three more progressions
-                    elif len(running_list) == 0:
-                        running_list.append(frame_counter)
-                        last_significant_framedata = current_frame
-
-            if SAVE_TRANSITION_FRAMES:
-                if save_counter != None and abs(save_counter - frame_counter) < frame_iterations:
-                    cv2.imwrite(f"outputs/{frame_counter}.png", current_frame)
+                    if SAVE_TRANSITION_FRAMES:
+                        cv2.imwrite(f"outputs/{frame_counter}.png", current_frame)
 
 
-        #################################################
-        ### send frame info to proper classifiers
-        if current_shot_mode == "board":
-            pass
-        
-        elif current_shot_mode == "wide":
-            pass
-        
-        elif current_shot_mode == "long":
-            pass
-        
-        # Send to frame classifier
+                #################################################
+                ### send frame info to proper processors
+                if current_shot_mode == "board":
+                    pass
+                
+                elif current_shot_mode == "wide":
+                    pass
+                
+                elif current_shot_mode == "long":
+                    pass
+                
+                # Send to frame classifier
+                else:
+                    current_shot_mode = mode_from_frame(current_frame)
+
+
+
+            #################################################
+            ### Update before moving to next frame 
+            last_frame = current_frame
+            # previous_change = MAX_DIFF
+            frame_counter += 1
+            if cv2.waitKey(1) == ord('q'):
+                break
+            #################################################
         else:
-            pass
-
-
-
-        #################################################
-        ### Update before moving to next frame 
-        last_frame = current_frame
-        previous_change = MAX_DIFF
-        frame_counter += 1
-        if not KeyboardInterrupt:
-            print(running_list)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        #################################################
-
     cap.release()
     cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    VIDEO_PATH = "video/GT_video/short.mp4"
+    VIDEO_PATH = "media/short.mp4"
     get_frame_stamps(VIDEO_PATH)

@@ -1,7 +1,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-video
+media
 .DS_Store
 .mp4
