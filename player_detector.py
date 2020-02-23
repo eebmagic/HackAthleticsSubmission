@@ -3,7 +3,7 @@ import cvlib as cv
 import numpy as np
 from people_classifier.classify_team import classify_person
 from cvlib.object_detection import draw_bbox
-from util import get_frame, format_frame
+from util import get_frame
 
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
@@ -42,8 +42,6 @@ if __name__ == '__main__':
 
         # convert to hsv and to grayscale
         frame_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
-
-        frame = format_frame(frame, 1)
 
         bboxs, labels, conf = cv.detect_common_objects(frame)
         # frame = draw_bbox(frame, bboxs, labels, conf)
