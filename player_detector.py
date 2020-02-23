@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # convert to hsv and to grayscale
         frame_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
 
-        frame = format_frame(frame, 0.8)
+        frame = format_frame(frame, 1)
 
         bboxs, labels, conf = cv.detect_common_objects(frame)
         # frame = draw_bbox(frame, bboxs, labels, conf)
@@ -55,12 +55,16 @@ if __name__ == '__main__':
                 # cv2.imwrite(f'media/players/{bbox[0]}.png', frame[bbox[1]:bbox[3], bbox[0]:bbox[2]])
                 player = frame[bbox[1]:bbox[3], bbox[0]:bbox[2]]
                 if classify_person(player):
-                    print('TECH!!')
-                    
+                    team = 'tech'
+                else:
+                    team = 'other'
+
+                frame_out = cv2.putText(frame_out, team, (bbox[0], bbox[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+
                 cv2.rectangle(frame_out, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
 
         cv2.imshow('output', frame_out)
-        cv2.imshow('masked', masked)
+        # cv2.imshow('masked', masked)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

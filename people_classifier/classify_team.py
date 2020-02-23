@@ -8,9 +8,13 @@ mu, sig = cv2.meanStdDev(temple_hsv) # find the mean colour of the base jersey i
 devs = 1 # tolerance
 
 def classify_person(image, red_threshold=250):
+    if image is None:
+        return False
+    if image.size == 0:
+        return False
+        
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     red_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig)
-    print(red_mask)
     masked = cv2.bitwise_and(image, image, mask=red_mask)
 
     if cv2.countNonZero(red_mask) > red_threshold:
