@@ -1,6 +1,5 @@
 import cv2
 import cvlib as cv
-from imutils.object_detection import non_max_suppression
 import numpy as np
 from people_classifier.classify_team import classify_person
 from cvlib.object_detection import draw_bbox
@@ -32,7 +31,7 @@ ldevs = 10
 
 if __name__ == '__main__':
     while video.isOpened():
-        orig = frame.copy()
+        frame_out = frame.copy()
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # convert frame into hsv
 
@@ -44,14 +43,19 @@ if __name__ == '__main__':
         # convert to hsv and to grayscale
         frame_gray = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
 
-        bboxs, labels, conf = cv.detect_common_objects(masked)
-        frame = draw_bbox(frame, bboxs, labels, conf)
+        frame = format_frame(frame, 0.8)
 
-        # for label in labels:
-        #     if label == 'person':
-        #         cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+        bboxs, labels, conf = cv.detect_common_objects(frame)
+        # frame = draw_bbox(frame, bboxs, labels, conf)
 
-        cv2.imshow('output', frame)
+        combined = [(bboxs[x], labels[x]) for x in range(0, len(labels))]
+
+        for bbox, label in combined:
+            if label == 'person':
+                # cv2.imwrite(f'media/players/{bbox[0]}.png', frame[bbox[1]:bbox[3], bbox[0]:bbox[2]])
+                cv2.rectangle(frame_out, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 2)
+
+        cv2.imshow('output', frame_out)
         cv2.imshow('masked', masked)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
