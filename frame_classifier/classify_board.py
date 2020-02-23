@@ -38,7 +38,6 @@ def is_board(image, printouts=False):
     else:
         return False
 
-
 def get_crosses(inputImage):
     output = []
     height, width, depth = inputImage.shape
@@ -79,7 +78,6 @@ def avg_pixel(inputList):
 
     return (R, G, B)
 
-
 def round_colorlist(inputList, factor=20):
     newData = []
     for point in inputList:
@@ -87,7 +85,6 @@ def round_colorlist(inputList, factor=20):
         newData.append(tuple(newTup))
 
     return newData
-
 
 # gets most common rather than average
 def common_colors(inputList):
@@ -106,7 +103,6 @@ def common_colors(inputList):
     short = counts[:3]
     shortValues = [x[0] for x in short]
     return short
-
 
 # if __name__ == '__main__':
 #     import os

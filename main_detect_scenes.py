@@ -7,7 +7,6 @@ from util import get_time
 from frame_classifier import classify_board
 from frame_classifier import orientation_detector
 
-
 '''
 correct answers:
 
@@ -26,7 +25,6 @@ def format_frame(inputFrame, percent=20):
     dim = (width, height)
 
     return cv2.resize(inputFrame, dim, interpolation=cv2.INTER_AREA)
-
 
 def mode_from_frame(inputFrame):
     output = None
@@ -48,7 +46,6 @@ def mode_from_frame(inputFrame):
     # cv2.imshow(str(inputFrame), inputFrame)
     # input()
     return output
-
 
 def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
     cap = cv2.VideoCapture(VIDEO_PATH)
@@ -91,7 +88,6 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
                     cv2.imshow(current_shot_mode, current_frame)
                     pass
 
-
                 # Check mean for motion
                 curr_mean = current_frame.mean()
                 print(current_shot_mode, get_time(frame_counter), frame_counter,  round(mean_data[0]), round(curr_mean))
@@ -115,7 +111,6 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
                     if SAVE_TRANSITION_FRAMES:
                         cv2.imwrite(f"outputs/{frame_counter}.png", current_frame)
 
-
                 #################################################
                 ### send frame info to proper processors
                 if current_shot_mode == "board":
@@ -131,8 +126,6 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
                 else:
                     current_shot_mode = mode_from_frame(current_frame)
 
-
-
             #################################################
             ### Update before moving to next frame 
             last_frame = current_frame
@@ -145,7 +138,6 @@ def get_frame_stamps(imagePath, SAVE_TRANSITION_FRAMES=False):
             break
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     VIDEO_PATH = "media/super_short.mp4"
