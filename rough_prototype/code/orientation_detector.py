@@ -7,15 +7,17 @@ line_hsv = cv2.cvtColor(line_img, cv2.COLOR_BGR2HSV) # convert the line image in
 mu, sig = cv2.meanStdDev(line_hsv) # find the mean colour of the base line image
 devs = 15 # tolerance
 
+CROP_FACTOR = 0.1
+
 def is_wide(image):
     (h, w) = image.shape[:2]
-    image = image[h:h - int(h * 0.1), w:w - int(w * 0.1)]
+    image = image[int(h * CROP_FACTOR):int(h * (1 - CROP_FACTOR)), int(w * CROP_FACTOR):int(w * (1 - CROP_FACTOR))] # crop the image to remove the sidelines
     
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     line_mask = cv2.inRange(hsv, mu - devs * sig, mu + devs * sig)
     
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(gray, 50, 150, apertureSize = 3)
+    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
 
     cv2.imshow('test', line_mask)
 
